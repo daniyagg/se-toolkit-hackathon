@@ -1,28 +1,71 @@
-# toolkit_project
-# Version 1 Plan – Water Tracker MVP
+# Version 1 Plan – WaterTracker MVP
 
 ## Core Feature (one thing done well)
-> **User can record one glass of water per click and see today’s progress (cups / goal).**
+> User can record one glass of water per click and see today's progress (cups / goal = 8).
 
-## Functional Scope
+## Architecture Overview
+[Flutter Client] → [FastAPI Backend] → [PostgreSQL Database]
 
-| Component | What it does |
-|-----------|---------------|
-| **Backend (FastAPI)** | Provides two REST endpoints: `GET /today/{user_id}` (returns current cups and fixed goal = 8) and `POST /drink/{user_id}` (increments cups for today). Returns JSON. |
-| **Database (PostgreSQL)** | Single table `water_log` with columns: `id`, `user_id`, `date`, `cups`. Stores daily intake per user. |
-| **Client (Flutter)** | Mobile app with a screen showing: today’s date, progress bar, text `X / 8 glasses`, and a button `+1 Glass`. On button tap, calls the API and updates UI dynamically. |
 
-## What is NOT in Version 1
-- User authentication (fixed `user_id` for demo, e.g. `"user_123"`)
-- Setting custom goal (hardcoded to 8)
+## Database (PostgreSQL)
+
+**Table:** `water_log`
+
+| Column   | Type      | Description                    |
+|----------|-----------|--------------------------------|
+| id       | SERIAL    | Primary key                    |
+| user_id  | VARCHAR   | Telegram or fixed user ID      |
+| date     | DATE      | YYYY-MM-DD                     |
+| cups     | INTEGER   | Number of glasses (default 0)  |
+
+**Constraints:** `UNIQUE(user_id, date)`
+
+## Backend (FastAPI)
+
+| Method | Endpoint                  | Description                          |
+|--------|---------------------------|--------------------------------------|
+| GET    | `/water/today/{user_id}`  | Returns `{cups, goal: 8}` for today |
+| POST   | `/water/drink/{user_id}`  | Increments cups by 1, returns updated `{cups, goal: 8}` |
+
+**Tech Stack:** FastAPI, SQLAlchemy, psycopg2-binary, Uvicorn
+
+## Frontend (Flutter)
+
+**Screen components:**
+- Current date display
+- Progress bar (cups / goal)
+- Text: `X / 8 glasses`
+- Button: `+1 Glass`
+
+**Behaviour:**
+- On load: fetch today's data via `GET /water/today/{user_id}`
+- On button tap: send `POST /water/drink/{user_id}`, update UI with response
+
+**Tech Stack:** Flutter, HTTP package
+
+## What is NOT included in Version 1
+
+- User authentication (hardcoded `user_id = "user_123"`)
+- Custom goal setting (fixed to 8 glasses)
 - History view (will be added in Version 2)
 - Notifications / reminders
-- Deployment (runs locally for demo)
+- Deployment (runs locally on `localhost`)
 
-## Success Criteria for Demo
-- [ ] FastAPI server runs on `localhost:8000`
-- [ ] PostgreSQL contains `water_log` table
-- [ ] Flutter app launches on emulator/device
-- [ ] Clicking `+1 Glass` increases the counter and progress bar
-- [ ] Data persists after app restart (because stored in DB)
-- [ ] TA can see API docs at `/docs` and raw DB content via `psql`
+## Success Criteria for TA Demo
+
+- [ ] FastAPI server runs on `http://localhost:8000`
+- [ ] PostgreSQL contains `water_log` table with data
+- [ ] Flutter app launches on emulator / real device
+- [ ] Clicking `+1 Glass` increases counter and progress bar
+- [ ] Data persists after app restart (stored in DB)
+- [ ] TA can see API docs at `/docs` and raw DB via `psql`
+
+## Time Estimate
+
+| Task                     | Time    |
+|--------------------------|---------|
+| PostgreSQL setup + table | 15 min  |
+| FastAPI endpoints        | 40 min  |
+| Flutter UI + API calls   | 60 min  |
+| Testing & polish         | 20 min  |
+| **Total**                | **~2.5 hours** |
