@@ -27,7 +27,7 @@
 | GET    | `/water/today/{user_id}`  | Returns `{cups, goal: 8}` for today |
 | POST   | `/water/drink/{user_id}`  | Increments cups by 1, returns updated `{cups, goal: 8}` |
 
-**Tech Stack:** FastAPI, SQLAlchemy, psycopg2-binary, Uvicorn
+**Tech Stack:** FastAPI, PostgreSQL
 
 ## Frontend (Flutter)
 
@@ -43,14 +43,7 @@
 
 **Tech Stack:** Flutter, HTTP package
 
-## What is NOT included in Version 1
-
-- User authentication (hardcoded `user_id = "user_123"`)
-- Custom goal setting (fixed to 8 glasses)
-- History view (will be added in Version 2)
-- Notifications / reminders
-
-## Success Criteria for TA Demo
+## Success Criteria for Demo
 
 - [ ] FastAPI server runs on `http://localhost:8000`
 - [ ] PostgreSQL contains `water_log` table with data
