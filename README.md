@@ -49,7 +49,6 @@
 - Custom goal setting (fixed to 8 glasses)
 - History view (will be added in Version 2)
 - Notifications / reminders
-- Deployment (runs locally on `localhost`)
 
 ## Success Criteria for TA Demo
 
