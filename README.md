@@ -64,38 +64,39 @@
 
 
 
-# Version 2 Plan – WaterTracker (Brief)
+# Water Tracker v2 – 7-Day History Feature Plan
 
-## Core improvements (choose based on TA feedback)
+## Feature
+- Today's progress: `X / 8 glasses` with **+1 Glass** button
+- Intake history for the last 7 days
 
-1. **History** – last 7 days as chart/list  
-2. **Custom goal** – user sets own target (4–12 glasses)  
-3. **Daily reminders** – local push notifications (10:00, 18:00)  
-4. **Deployment** – backend on Render + cloud PostgreSQL, frontend APK  
-5. **Polish** – loading indicators, error handling, pull-to-refresh
+## API (FastAPI)
 
-## Implementation steps
+| Method | Endpoint                   | Description |
+|--------|----------------------------|-------------|
+| GET    | `/water/today/{user_id}`   | `{cups, goal:8}` for today |
+| POST   | `/water/drink/{user_id}`   | Increment `cups` by 1, return updated today |
+| GET    | `/water/history/{user_id}` | `{goal:8, history: [{date, cups}]}` for last 7 days (missing days = 0) |
 
-| Feature | What to do | Est. time |
-|---------|-----------|-----------|
-| History | `GET /history/{user_id}` + new screen in Flutter | 1h |
-| Custom goal | Add `goal` column, `POST /goal`, settings UI | 1h |
-| Reminders | `flutter_local_notifications`, schedule daily | 45m |
-| Deployment | Render + Neon (cloud DB), build release APK | 1h |
-| Polish | Loaders, error messages, pull-to-refresh | 30m |
+## Flutter UI
+- Date header
+- Progress bar + `X / 8`
+- **+1 Glass** button
+- Horizontal week chart (abbreviated weekdays + cups)
 
-## Deployment (minimal)
+## Success Criteria
+- [ ] App runs, fetches from `localhost:8000`
+- [ ] Tap **+1** updates today
+- [ ] History shows 7-day values (zeros for gaps)
+- [ ] Data persists after restart
+- [ ] `/docs` shows `/history` endpoint
 
-- **Backend:** `render.yaml` + PostgreSQL (Neon/Supabase)  
-- **Frontend:** `flutter build apk --release` → share APK  
-
-## Success criteria
-
-- [ ] TA feedback from V1 addressed  
-- [ ] App works with deployed backend (no local server needed)  
-- [ ] New features work without crashes  
-- [ ] TA can install APK on their phone and test  
-
-## Total time
-
-~4–5 hours
+## Time Estimate
+| Task                         | Time   |
+|------------------------------|--------|
+| History SQL query            | 10 min |
+| `/history` endpoint          | 25 min |
+| Flutter history UI           | 50 min |
+| Flutter API integration      | 30 min |
+| Testing & polish             | 20 min |
+| **Total**                    | **~2h 15m** |
