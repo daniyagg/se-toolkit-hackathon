@@ -23,7 +23,9 @@ app.add_middleware(
 database = Database(DATABASE_URL)
 
 # Serve web app
-web_app_path = os.path.join(os.path.dirname(__file__), "..", "web_app")
+web_app_path = os.getenv("WEB_APP_PATH", os.path.join(os.path.dirname(__file__), "..", "web_app"))
+if not os.path.isabs(web_app_path):
+    web_app_path = os.path.join(os.path.dirname(__file__), web_app_path)
 
 
 def hash_password(password: str) -> str:
@@ -50,6 +52,15 @@ async def startup():
             username VARCHAR(255) UNIQUE NOT NULL,
             password_hash VARCHAR(255) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    # Create water_log table if not exists
+    await database.execute("""
+        CREATE TABLE IF NOT EXISTS water_log (
+            user_id VARCHAR(255) NOT NULL,
+            date DATE NOT NULL,
+            cups INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (user_id, date)
         )
     """)
 
