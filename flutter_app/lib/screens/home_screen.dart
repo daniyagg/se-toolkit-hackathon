@@ -15,11 +15,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int _cups = 0;
   final int _goal = 8;
   bool _isLoading = false;
+  List<Map<String, dynamic>> _history = [];
 
   @override
   void initState() {
     super.initState();
     _loadTodayData();
+    _loadHistory();
   }
 
   Future<void> _loadTodayData() async {
@@ -40,6 +42,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _loadHistory() async {
+    try {
+      final historyData = await ApiService.getHistory(widget.userId);
+      setState(() {
+        _history = List<Map<String, dynamic>>.from(historyData['history']);
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading history: $e')),
+        );
+      }
+    }
+  }
+
   Future<void> _drinkWater() async {
     setState(() => _isLoading = true);
     try {
@@ -47,6 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _cups = response['cups'];
       });
+      // Refresh history after drinking
+      await _loadHistory();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -56,6 +75,72 @@ class _HomeScreenState extends State<HomeScreen> {
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  Widget _buildWeekChart() {
+    if (_history.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final maxCups = _history.fold<int>(0, (max, item) => item['cups'] > max ? item['cups'] : max);
+    final barHeight = 100.0;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Last 7 Days',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: barHeight + 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: _history.map((entry) {
+                  final date = DateTime.parse(entry['date']);
+                  final dayLabel = weekdays[date.weekday - 1];
+                  final cups = entry['cups'] as int;
+                  final height = maxCups > 0 ? (cups / maxCups) * barHeight : 0.0;
+
+                  return Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          '$cups',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          height: height,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          dayLabel,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -159,6 +244,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       foregroundColor: Colors.white,
                     ),
                   ),
+                  const SizedBox(height: 24),
+
+                  // Week chart
+                  _buildWeekChart(),
                 ],
               ),
             ),
