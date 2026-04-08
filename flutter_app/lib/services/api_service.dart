@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://10.93.25.142:8000';
+  static const String baseUrl = 'http://localhost:8000';
 
   static Future<Map<String, dynamic>> getTodayWater(String userId) async {
     try {
@@ -31,6 +31,21 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error recording drink: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getHistory(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/water/history/$userId'),
+      );
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to load history');
+      }
+    } catch (e) {
+      throw Exception('Error fetching history: $e');
     }
   }
 }

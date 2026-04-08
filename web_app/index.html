@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaterTracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        /* Auth Screens */
+        .auth-screen {
+            text-align: center;
+        }
+
+        .auth-screen h1 {
+            margin-bottom: 10px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .auth-form {
+            margin-top: 20px;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            transition: border-color 0.3s;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Tracker Screen */
+        .tracker-screen {
+            display: none;
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .logout-btn {
+            background: #f5f5f5;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #666;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #e0e0e0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .date-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .nav-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .current-date {
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+            font-size: 1em;
+            flex: 1;
+        }
+
+        .today-badge {
+            background: #2196F3;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .progress-container {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 30px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #2196F3 0%, #03A9F4 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 30px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .drink-btn, .undo-btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .drink-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #03A9F4 100%);
+            color: white;
+        }
+
+        .undo-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .drink-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3);
+        }
+
+        .undo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .drink-btn:active, .undo-btn:active {
+            transform: translateY(0);
+        }
+
+        .drink-btn:disabled, .undo-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .history-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+            clear: both;
+        }
+
+        /* Fixed history chart - centered below buttons */
+        .history-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 15px 0;
+            width: 100%;
+        }
+
+        .history-day {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 60px;
+        }
+
+        .history-day .day-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .history-day .bar-wrapper {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .history-day .bar-container {
+            width: 100%;
+            background: #f0f0f0;
+            border-radius: 8px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-day .bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(180deg, #2196F3 0%, #03A9F4 100%);
+            border-radius: 8px;
+            transition: height 0.5s ease;
+        }
+
+        .history-day .cups {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2196F3;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Auth Screen (Login/Register) -->
+        <div id="authScreen" class="auth-screen">
+            <h1>💧 WaterTracker</h1>
+            <p style="color: #666;">Track your daily water intake</p>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" id="registerTab" onclick="switchTab('register')">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+                <input type="text" id="loginUsername" placeholder="Username" required autocomplete="username">
+                <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+                <button type="submit" class="auth-btn" id="loginBtn">Login</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)">
+                <input type="text" id="registerUsername" placeholder="Choose a username" required autocomplete="username" minlength="3">
+                <input type="password" id="registerPassword" placeholder="Choose a password (min 4 chars)" required autocomplete="new-password" minlength="4">
+                <input type="password" id="registerPasswordConfirm" placeholder="Confirm password" required autocomplete="new-password" minlength="4">
+                <button type="submit" class="auth-btn" id="registerBtn">Create Account</button>
+            </form>
+
+            <div id="authMessage"></div>
+        </div>
+
+        <!-- Tracker Screen -->
+        <div id="trackerScreen" class="tracker-screen">
+            <div class="user-header">
+                <div class="user-info">👤 <span id="currentUser"></span></div>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+
+            <h1>💧 WaterTracker</h1>
+
+            <div class="date-navigation">
+                <button class="nav-btn" id="prevDayBtn" onclick="navigateDay(-1)">◀</button>
+                <div class="current-date">
+                    <span id="currentDate"></span>
+                    <span id="todayBadge" class="today-badge" style="display: none;">TODAY</span>
+                </div>
+                <button class="nav-btn" id="nextDayBtn" onclick="navigateDay(1)" disabled>▶</button>
+            </div>
+
+            <div id="message"></div>
+
+            <div id="loading" class="loading">Loading...</div>
+
+            <div id="tracker" style="display: none;">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">0 / 8 glasses</div>
+
+                <div class="button-group">
+                    <button class="drink-btn" id="drinkBtn" onclick="drinkWater()">+1 Glass 💧</button>
+                    <button class="undo-btn" id="undoBtn" onclick="undoWater()">-1 Glass ↩</button>
+                </div>
+
+                <div class="history-title">Last 7 Days</div>
+                <div class="history-container" id="historyContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        const GOAL = 8;
+
+        // State
+        let currentUser = null;
+        let currentDate = new Date();
+        let midnightTimeout = null;
+
+        // Initialize
+        function init() {
+            // Check for saved user session
+            const savedUser = localStorage.getItem('waterTrackerUser');
+            if (savedUser) {
+                currentUser = savedUser;
+                showTracker();
+            }
+        }
+
+        // Switch between login and register tabs
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const authMessage = document.getElementById('authMessage');
+
+            // Clear messages
+            authMessage.innerHTML = '';
+
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                registerTab.classList.add('active');
+                loginTab.classList.remove('active');
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+        }
+
+        // Show auth message
+        function showAuthMessage(text, type) {
+            const msgDiv = document.getElementById('authMessage');
+            msgDiv.className = `message ${type}`;
+            msgDiv.textContent = text;
+            setTimeout(() => {
+                msgDiv.textContent = '';
+                msgDiv.className = '';
+            }, 3000);
+        }
+
+        // Login handler
+        async function handleLogin(event) {
+            event.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+
+            try {
+                const response = await fetch(`${API_BASE}/user/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Login failed');
+                }
+
+                const data = await response.json();
+                currentUser = data.user_id;
+                localStorage.setItem('waterTrackerUser', data.user_id);
+                showTracker();
+                showMessage(`Welcome back, ${data.user_id}!`, 'success');
+            } catch (error) {
+                showAuthMessage(error.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Login';
+        }
+
+        // Register handler
+        async function handleRegister(event) {
+            event.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            if (!username || !password || !passwordConfirm) return;
+
+            if (password !== passwordConfirm) {
+                showAuthMessage('Passwords do not match', 'error');
+                return;
+            }
+
+            if (password.length < 4) {
+                showAuthMessage('Password must be at least 4 characters', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            try {
+                const response = await fetch(`${API_BASE}/user/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Registration failed');
+                }
+
+                const data = await response.json();
+                currentUser = data.user_id;
+                localStorage.setItem('waterTrackerUser', data.user_id);
+                showTracker();
+                showMessage(`Account created! Welcome, ${data.user_id}!`, 'success');
+            } catch (error) {
+                showAuthMessage(error.message, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Create Account';
+        }
+
+        // Show tracker screen
+        function showTracker() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('trackerScreen').style.display = 'block';
+            document.getElementById('currentUser').textContent = currentUser;
+            
+            // Reset to today
+            currentDate = new Date();
+            loadDay();
+
+            // Check for midnight auto-switch every minute
+            setInterval(checkMidnight, 60000);
+        }
+
+        // Logout handler
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('waterTrackerUser');
+            
+            document.getElementById('authScreen').style.display = 'block';
+            document.getElementById('trackerScreen').style.display = 'none';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('registerUsername').value = '';
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('registerPasswordConfirm').value = '';
+            
+            switchTab('login');
+        }
+
+        // Navigate between days
+        function navigateDay(direction) {
+            currentDate.setDate(currentDate.getDate() + direction);
+            loadDay();
+        }
+
+        // Load water data for current date
+        async function loadDay() {
+            const dateStr = formatDate(currentDate);
+            const isToday = isDateToday(currentDate);
+
+            // Update UI
+            document.getElementById('currentDate').textContent = formatDateDisplay(currentDate);
+            document.getElementById('todayBadge').style.display = isToday ? 'inline' : 'none';
+            document.getElementById('prevDayBtn').disabled = false;
+            document.getElementById('nextDayBtn').disabled = isToday;
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('tracker').style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/water/date/${currentUser}/${dateStr}`);
+                if (!response.ok) throw new Error('Failed to load data');
+                
+                const data = await response.json();
+                updateProgress(data.cups);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('tracker').style.display = 'block';
+
+                // Only show buttons for today
+                const isTodayView = isDateToday(currentDate);
+                document.getElementById('drinkBtn').disabled = !isTodayView;
+                document.getElementById('undoBtn').disabled = !isTodayView || data.cups === 0;
+
+                // Load history
+                loadHistory();
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `
+                    <div class="message error">
+                        Error loading data. Please try again.
+                    </div>
+                `;
+            }
+        }
+
+        // Update progress bar
+        function updateProgress(cups) {
+            const percentage = Math.min((cups / GOAL) * 100, 100);
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${cups} / ${GOAL} glasses`;
+
+            if (cups >= GOAL) {
+                document.getElementById('progressText').textContent += ' 🎉';
+            }
+
+            // Update undo button state
+            document.getElementById('undoBtn').disabled = cups === 0 || !isDateToday(currentDate);
+        }
+
+        // Record a glass of water
+        async function drinkWater() {
+            if (!isDateToday(currentDate)) return;
+            
+            const btn = document.getElementById('drinkBtn');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/water/drink/${currentUser}`, {
+                    method: 'POST'
+                });
+                if (!response.ok) throw new Error('Failed to record');
+                
+                const data = await response.json();
+                updateProgress(data.cups);
+                showMessage(`Recorded! You've had ${data.cups} glasses today`, 'success');
+                loadHistory();
+            } catch (error) {
+                showMessage('Error recording water intake', 'error');
+            }
+
+            btn.disabled = false;
+        }
+
+        // Undo a glass of water
+        async function undoWater() {
+            if (!isDateToday(currentDate)) return;
+            
+            const btn = document.getElementById('undoBtn');
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/water/undo/${currentUser}`, {
+                    method: 'POST'
+                });
+                if (!response.ok) throw new Error('Failed to undo');
+                
+                const data = await response.json();
+                updateProgress(data.cups);
+                showMessage(`Removed 1 glass. You've had ${data.cups} glasses today`, 'success');
+                loadHistory();
+            } catch (error) {
+                showMessage(error.message || 'Error undoing water intake', 'error');
+            }
+
+            btn.disabled = false;
+        }
+
+        // Load 7-day history
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/water/history/${currentUser}`);
+                if (!response.ok) throw new Error('Failed to load history');
+                
+                const data = await response.json();
+                renderHistory(data.history);
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // Render history chart - FIXED alignment
+        function renderHistory(history) {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '';
+
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            history.forEach(entry => {
+                const date = new Date(entry.date);
+                const dayName = days[date.getDay()];
+                const percentage = Math.min((entry.cups / GOAL) * 100, 100);
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'history-day';
+                dayDiv.innerHTML = `
+                    <div class="day-label">${dayName}</div>
+                    <div class="bar-wrapper">
+                        <div class="bar-container">
+                            <div class="bar" style="height: ${percentage}%"></div>
+                        </div>
+                    </div>
+                    <div class="cups">${entry.cups}</div>
+                `;
+                container.appendChild(dayDiv);
+            });
+        }
+
+        // Check if date is today
+        function isDateToday(dateToCheck) {
+            const today = new Date();
+            return dateToCheck.getFullYear() === today.getFullYear() &&
+                   dateToCheck.getMonth() === today.getMonth() &&
+                   dateToCheck.getDate() === today.getDate();
+        }
+
+        // Check for midnight (auto-switch to today)
+        function checkMidnight() {
+            const now = new Date();
+            if (now.getHours() === 0 && now.getMinutes() === 0) {
+                // It's midnight! Switch to today
+                currentDate = new Date();
+                loadDay();
+                showMessage('🌅 New day! Your water tracker has been reset.', 'success');
+            }
+        }
+
+        // Show message
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.className = `message ${type}`;
+            msgDiv.textContent = text;
+            
+            setTimeout(() => {
+                msgDiv.textContent = '';
+                msgDiv.className = '';
+            }, 3000);
+        }
+
+        // Format date as YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Format date for display
+        function formatDateDisplay(date) {
+            return date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
