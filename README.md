@@ -198,7 +198,3 @@ EOF
 sudo systemctl enable --now watertracker
 ```
 
-
-## License
-
-MIT — see [LISENCE](LISENSE.md) for details.
