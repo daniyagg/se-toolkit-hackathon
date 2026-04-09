@@ -16,7 +16,6 @@ A simple water intake tracker with a single button to log your daily water consu
 - **Track Daily Water Intake**: Record glasses of water with a single click
 - **Progress Visualization**: See your daily progress towards the 8-glass goal
 - **Persistent Storage**: All data is stored in PostgreSQL
-- **Web Interface**: No Flutter SDK required - works directly in your browser
 
 ### Architecture
 
