@@ -111,7 +111,6 @@ A water intake tracking application with user authentication, 7-day history visu
 - **Date Navigation**: Browse between days with left/right arrows
 - **Auto-Reset at Midnight**: Automatically switches to today's date at 0:00
 - **Persistent Storage**: All data is stored in PostgreSQL
-- **Web Interface**: No Flutter SDK required - works directly in your browser
 
 ### Architecture
 
