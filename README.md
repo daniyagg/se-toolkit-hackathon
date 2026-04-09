@@ -1,237 +1,226 @@
 # WaterTracker
 
-A water intake tracking application. Two versions available:
-
-- **v1** — Simple tracker with a single `+1 Glass` button
-- **v2** — Full tracker with authentication, history, `-1 Glass`, and date navigation
+A daily water intake tracking web application with user authentication, 7-day history visualization, and date navigation.
 
 ---
 
-## Version 1: Basic Tracker
+## Demo
 
-A simple water intake tracker with a single button to log your daily water consumption.
+### Authentication
 
-### Features
+Users register or log in with a username and password. Sessions are persisted so returning users are automatically signed in.
 
-- **Track Daily Water Intake**: Record glasses of water with a single click
-- **Progress Visualization**: See your daily progress towards the 8-glass goal
-- **Persistent Storage**: All data is stored in PostgreSQL
+### Tracker
 
-### Architecture
+After logging in, users see their daily progress toward an 8-glass goal. A single tap on **+1 Glass** logs a glass of water; **-1 Glass** removes an accidentally logged glass. Date navigation arrows let users browse past or future days, and a 7-day bar chart shows recent history at a glance.
 
-```
-[Web Client (FastAPI)] → [FastAPI Backend] → [PostgreSQL Database]
-```
-
-### Quick Start
-
-```bash
-# Start the backend (includes web interface)
-cd backend
-source venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-Then open http://localhost:8000 in your browser.
-
-### API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Web application interface |
-| GET | `/water/today/{user_id}` | Returns today's water intake |
-| POST | `/water/drink/{user_id}` | Record a glass of water (+1) |
-| GET | `/health` | Health check endpoint |
-| GET | `/docs` | Interactive API documentation |
-
-### Database (PostgreSQL)
-
-**Table:** `water_log`
-
-| Column   | Type      | Description                    |
-|----------|-----------|--------------------------------|
-| id       | SERIAL    | Primary key                    |
-| user_id  | VARCHAR   | User identifier                |
-| date     | DATE      | YYYY-MM-DD                     |
-| cups     | INTEGER   | Number of glasses (default 0)  |
-
-**Constraints:** `UNIQUE(user_id, date)`
-
-### Backend (FastAPI)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/water/today/{user_id}` | Returns `{cups, goal: 8}` for today |
-| POST | `/water/drink/{user_id}` | Increments cups by 1, returns `{cups, goal: 8, date}` |
-
-**Tech Stack:** FastAPI, PostgreSQL
-
-### Frontend (Web App)
-
-**Tracker Screen:**
-- Progress bar (cups / goal)
-- `+1 Glass 💧` button (centered)
-
-**Behaviour:**
-- On `+1 Glass` tap: send `POST /water/drink/{user_id}`, update UI
-
-**Tech Stack:** Vanilla HTML/CSS/JavaScript, Fetch API
-
-### Success Criteria for Demo
-
-- [ ] FastAPI server runs on `http://localhost:8000`
-- [ ] PostgreSQL contains `water_log` table with data
-- [ ] Clicking `+1 Glass` increases counter and progress bar
-- [ ] Data persists after app restart (stored in DB)
-- [ ] TA can see API docs at `/docs` and raw DB via `psql`
-
-### Time Estimate
-
-| Task                         | Time    |
-|------------------------------|---------|
-| PostgreSQL setup + tables    | 20 min  |
-| FastAPI water endpoints      | 30 min  |
-| Web UI + API integration     | 40 min  |
-| Testing & polish             | 10 min  |
-| **Total**                    | **~1.5 hours** |
+> **Screenshots:** Add screenshots of the authentication screen and the tracker screen here.
+>
+> 1. `screenshots/auth.png` — Login / Register screen
+> 2. `screenshots/tracker.png` — Tracker screen with progress bar, buttons, and 7-day history chart
 
 ---
 
-## Version 2: Full Tracker
+## Product Context
 
-A water intake tracking application with user authentication, 7-day history visualization, and date navigation.
+### End Users
 
-### Features
+Anyone who wants to stay hydrated — students, office workers, athletes, or health-conscious individuals who struggle to drink enough water throughout the day.
 
-- **User Authentication**: Secure registration and login with password protection
-- **Track Daily Water Intake**: Record glasses of water with a single click
-- **Undo Mistakes**: `-1 Glass` button to remove accidentally logged glasses
-- **Progress Visualization**: See your daily progress towards the 8-glass goal
-- **7-Day History**: View your water intake history for the last 7 days with bar chart
-- **Date Navigation**: Browse between days with left/right arrows
-- **Auto-Reset at Midnight**: Automatically switches to today's date at 0:00
-- **Persistent Storage**: All data is stored in PostgreSQL
+### Problem
 
-### Architecture
+Many people forget to drink water regularly and have no simple way to track their daily intake. Existing apps are often bloated with features, require accounts on proprietary platforms, or are mobile-only.
 
-```
-[Web Client (FastAPI)] → [FastAPI Backend] → [PostgreSQL Database]
-```
+### Solution
 
-### Quick Start
+WaterTracker is a lightweight, open-source web app that lets users log glasses of water with a single click, visualize their progress, and review the last 7 days — all from any browser. No app install required.
+
+---
+
+## Features
+
+### Implemented
+
+| Feature | Status |
+|---------|--------|
+| User registration & login (SHA-256 password hashing) | ✅ |
+| Session persistence (auto-login) | ✅ |
+| Log a glass of water (+1) | ✅ |
+| Undo a logged glass (-1, today only) | ✅ |
+| Daily progress bar (goal: 8 glasses) | ✅ |
+| Date navigation (browse any day) | ✅ |
+| 7-day history bar chart | ✅ |
+| Auto-reset to today at midnight | ✅ |
+| PostgreSQL persistent storage | ✅ |
+| Interactive API docs (Swagger) | ✅ |
+| Responsive web UI (vanilla HTML/CSS/JS) | ✅ |
+
+### Not Yet Implemented
+
+| Feature | Priority |
+|---------|----------|
+| Custom daily goal per user | Low |
+| Email / push reminders to drink | Medium |
+| Export data (CSV / PDF) | Low |
+| Mobile app (Flutter) | Medium |
+| OAuth / social login | Low |
+| Multi-language support (i18n) | Low |
+| Docker Compose one-command deploy | Medium |
+
+---
+
+## Usage
+
+### Web App (Recommended)
+
+1. Start the backend server (see **Deployment** below).
+2. Open a browser and navigate to `http://localhost:8000`.
+3. Register a new account or log in.
+4. Tap **+1 Glass** each time you drink a glass of water.
+5. Use the date arrows to review past days; the bar chart shows the last 7 days.
+
+### API
+
+The REST API can be explored interactively at `http://localhost:8000/docs` once the server is running.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/user/register` | Register — `{username, password}` → `{user_id, message}` |
+| `POST` | `/user/login` | Login — `{username, password}` → `{user_id, message}` |
+| `GET` | `/water/today/{user_id}` | Today's intake — `{cups, goal}` |
+| `GET` | `/water/date/{user_id}/{date}` | Intake for a specific date |
+| `POST` | `/water/drink/{user_id}` | Log +1 glass |
+| `POST` | `/water/undo/{user_id}` | Undo -1 glass |
+| `GET` | `/water/history/{user_id}` | 7-day history |
+| `GET` | `/health` | Health check |
+
+---
+
+## Deployment
+
+### Target OS
+
+Ubuntu 24.04 LTS (same as university VMs).
+
+### Prerequisites
+
+The following must be installed on the VM:
+
+| Software | Minimum Version | Install Command |
+|----------|-----------------|-----------------|
+| Python | 3.10+ | `sudo apt install python3 python3-venv python3-pip` |
+| PostgreSQL | 14+ | `sudo apt install postgresql postgresql-contrib` |
+| Nginx *(optional, for production)* | any | `sudo apt install nginx` |
+
+### Step-by-Step Instructions
+
+#### 1. Install PostgreSQL
 
 ```bash
-# Start the backend (includes web interface)
-cd backend
-source venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+sudo apt update
+sudo apt install -y postgresql postgresql-contrib
+sudo systemctl enable --now postgresql
 ```
 
-Then open http://localhost:8000 in your browser.
+#### 2. Create the Database
 
-### API Endpoints
+```bash
+sudo -u postgres psql <<EOF
+CREATE DATABASE watertracker;
+EOF
+```
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Web application interface |
-| POST | `/user/register` | Register a new user with password |
-| POST | `/user/login` | Login with username and password |
-| GET | `/water/today/{user_id}` | Returns today's water intake |
-| GET | `/water/date/{user_id}/{target_date}` | Get water intake for specific date (YYYY-MM-DD) |
-| POST | `/water/drink/{user_id}` | Record a glass of water (+1) |
-| POST | `/water/undo/{user_id}` | Remove a glass of water (-1) |
-| GET | `/water/history/{user_id}` | Get 7-day water intake history |
-| GET | `/health` | Health check endpoint |
-| GET | `/docs` | Interactive API documentation |
+#### 3. Clone the Repository
 
-### Database (PostgreSQL)
+```bash
+git clone https://github.com/<your-username>/se-toolkit-hackathon.git
+cd se-toolkit-hackathon
+```
 
-**Table:** `water_log`
+#### 4. Set Up the Python Backend
 
-| Column   | Type      | Description                    |
-|----------|-----------|--------------------------------|
-| id       | SERIAL    | Primary key                    |
-| user_id  | VARCHAR   | User identifier                |
-| date     | DATE      | YYYY-MM-DD                     |
-| cups     | INTEGER   | Number of glasses (default 0)  |
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-**Constraints:** `UNIQUE(user_id, date)`
+#### 5. Configure the Database Connection
 
-**Table:** `users`
+Edit `backend/config.py` if the default connection string does not match your setup:
 
-| Column        | Type         | Description                    |
-|---------------|--------------|--------------------------------|
-| id            | SERIAL       | Primary key                    |
-| username      | VARCHAR(255) | Unique username                |
-| password_hash | VARCHAR(255) | SHA-256 hashed password        |
-| created_at    | TIMESTAMP    | Account creation timestamp     |
+```python
+DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/watertracker"
+```
 
-**Constraints:** `UNIQUE(username)`
+#### 6. Start the Backend Server
 
-### Backend (FastAPI)
+```bash
+cd backend
+source venv/bin/activate
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/user/register` | Create account with `{username, password}`, returns `{user_id, message}` |
-| POST | `/user/login` | Authenticate with `{username, password}`, returns `{user_id, message}` |
-| GET | `/water/today/{user_id}` | Returns `{cups, goal: 8}` for today |
-| GET | `/water/date/{user_id}/{target_date}` | Returns `{cups, goal: 8}` for specific date |
-| POST | `/water/drink/{user_id}` | Increments cups by 1, returns `{cups, goal: 8, date}` |
-| POST | `/water/undo/{user_id}` | Decrements cups by 1 (min 0), returns `{cups, goal: 8, date}` |
-| GET | `/water/history/{user_id}` | Returns `{goal: 8, history: [{date, cups}]}` for last 7 days |
+The app (and its interactive API docs) will be available at:
 
-**Tech Stack:** FastAPI, PostgreSQL, SHA-256 password hashing
+- **App:** `http://<vm-ip>:8000`
+- **API Docs:** `http://<vm-ip>:8000/docs`
 
-### Frontend (Web App)
+#### 7. (Optional) Run Behind Nginx for Production
 
-**Authentication Screen:**
-- Login/Register tabs
-- Username + password input fields
-- Password confirmation for registration
-- Session persistence via localStorage
+```bash
+sudo cp web_app/nginx.conf /etc/nginx/sites-available/watertracker
+sudo ln -s /etc/nginx/sites-available/watertracker /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+```
 
-**Tracker Screen:**
-- User header with logout button
-- Date navigation (◀ ▶) with "TODAY" badge
-- Progress bar (cups / goal)
-- `+1 Glass 💧` button (centered)
-- `-1 Glass ↩` button (centered, only for today)
-- 7-day history bar chart (centered below buttons)
+Update `web_app/nginx.conf` to point `proxy_pass` to `http://127.0.0.1:8000`.
 
-**Behaviour:**
-- On load: check for saved session, auto-login if exists
-- On login: authenticate via `POST /user/login`, save session
-- On register: create account via `POST /user/register`, save session
-- On date navigation: fetch data via `GET /water/date/{user_id}/{target_date}`
-- On `+1 Glass` tap: send `POST /water/drink/{user_id}`, update UI
-- On `-1 Glass` tap: send `POST /water/undo/{user_id}`, update UI
-- At midnight (0:00): auto-switch to today's date with notification
+#### 8. (Optional) Run as a Systemd Service
 
-**Tech Stack:** Vanilla HTML/CSS/JavaScript, Fetch API
+```bash
+sudo tee /etc/systemd/system/watertracker.service > /dev/null <<EOF
+[Unit]
+Description=WaterTracker FastAPI Server
+After=network.target postgresql.service
 
-### Success Criteria for Demo
+[Service]
+WorkingDirectory=/root/se-toolkit-hackathon/backend
+ExecStart=/root/se-toolkit-hackathon/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+Restart=always
 
-- [ ] FastAPI server runs on `http://localhost:8000`
-- [ ] PostgreSQL contains `water_log` and `users` tables with data
-- [ ] User can register with username + password
-- [ ] User can login with correct credentials
-- [ ] Login fails with incorrect password
-- [ ] Clicking `+1 Glass` increases counter and progress bar
-- [ ] Clicking `-1 Glass` decreases counter (minimum 0)
-- [ ] Date navigation works (browse past/future days)
-- [ ] History shows 7-day values with bar chart (zeros for gaps)
-- [ ] Auto-switch to today at midnight (0:00)
-- [ ] Data persists after app restart (stored in DB)
-- [ ] TA can see API docs at `/docs` and raw DB via `psql`
+[Install]
+WantedBy=multi-user.target
+EOF
 
-### Time Estimate
+sudo systemctl enable --now watertracker
+```
 
-| Task                         | Time    |
-|------------------------------|---------|
-| PostgreSQL setup + tables    | 20 min  |
-| User auth endpoints          | 30 min  |
-| FastAPI water endpoints      | 40 min  |
-| Web UI + API integration     | 60 min  |
-| Date navigation + midnight   | 30 min  |
-| Testing & polish             | 20 min  |
-| **Total**                    | **~3.5 hours** |
+---
+
+## Project Structure
+
+```
+se-toolkit-hackathon/
+├── backend/
+│   ├── main.py            # FastAPI application + routes
+│   ├── models.py          # Pydantic request/response models
+│   ├── config.py          # Database connection string
+│   ├── requirements.txt   # Python dependencies
+│   └── schema.sql         # Database schema (reference)
+├── web_app/
+│   ├── index.html         # Single-page web client (HTML/CSS/JS)
+│   ├── nginx.conf         # Nginx reverse-proxy config
+│   └── Dockerfile         # Docker image for web app
+├── flutter_app/           # (WIP) Flutter mobile client
+├── docker-compose.yml     # Docker Compose orchestration
+├── setup.sh               # One-command setup script
+└── README.md
+```
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.
