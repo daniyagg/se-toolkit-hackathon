@@ -15,10 +15,8 @@ Users register or log in with a username and password. Sessions are persisted so
 After logging in, users see their daily progress toward an 8-glass goal. A single tap on **+1 Glass** logs a glass of water; **-1 Glass** removes an accidentally logged glass. Date navigation arrows let users browse past or future days, and a 7-day bar chart shows recent history at a glance.
 
 >
-> 1. <img width="1919" height="1021" alt="auth" src="https://github.com/user-attachments/assets/0ac0e845-a18b-4074-8feb-7e6b786f7b21" />
- — Login / Register screen
-> 2. <img width="1917" height="1020" alt="tracker" src="https://github.com/user-attachments/assets/4b9e6ea7-ae2d-4028-af2f-ae0f77cfd089" />
- — Tracker screen with progress bar, buttons, and 7-day history chart
+![Login and Register screen](/screenshots/auth.png)
+![Tracker screen with progress bar and history chart](/screenshots/tracker.png)
 
 ---
 
