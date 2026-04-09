@@ -197,29 +197,6 @@ EOF
 sudo systemctl enable --now watertracker
 ```
 
----
-
-## Project Structure
-
-```
-se-toolkit-hackathon/
-├── backend/
-│   ├── main.py            # FastAPI application + routes
-│   ├── models.py          # Pydantic request/response models
-│   ├── config.py          # Database connection string
-│   ├── requirements.txt   # Python dependencies
-│   └── schema.sql         # Database schema (reference)
-├── web_app/
-│   ├── index.html         # Single-page web client (HTML/CSS/JS)
-│   ├── nginx.conf         # Nginx reverse-proxy config
-│   └── Dockerfile         # Docker image for web app
-├── flutter_app/           # (WIP) Flutter mobile client
-├── docker-compose.yml     # Docker Compose orchestration
-├── setup.sh               # One-command setup script
-└── README.md
-```
-
----
 
 ## License
 
